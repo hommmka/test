@@ -20,7 +20,7 @@ export default function RootLayout() {
     } catch (e) {
       console.warn('Failed to fetch onboarding state', e);
     }
-    if (value == 'true') {
+    if (value !== 'true') {
       router.replace('/onboarding1');
       return false;
     }
