@@ -15,7 +15,7 @@ export default function RootLayout() {
   const checkOnboarding = async () => {
   try {
     const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
-    if (hasSeenOnboarding == 'true') {
+    if (hasSeenOnboarding !== 'true') {
       router.replace('/onboarding1');
     }
   } catch (e) {

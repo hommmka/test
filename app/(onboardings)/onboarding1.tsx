@@ -1,128 +1,150 @@
+// app/onboarding.tsx
+import { ONBOARDING_SLIDES } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
-import { useRouter } from "expo-router";
-import React from "react";
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import {
   Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-const { width } = Dimensions.get("window");
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Onboarding2() {
+const { width } = Dimensions.get('window');
+const DOT_SIZE = 10;
 
+export default function OnboardingScreen() {
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const router = useRouter();
+
+  const handleContinue = async () => {
+    if (currentSlideIndex < ONBOARDING_SLIDES.length - 1) {
+      setCurrentSlideIndex(prev => prev + 1);
+    } else {
+      try {
+        await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      } catch (e) {
+        console.warn('Failed to save onboarding state', e);
+      } finally {
+        router.replace('/');
+      }
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+    } catch (e) {
+      console.warn('Failed to save onboarding state', e);
+    } finally {
+      router.replace('/');
+    }
+  };
+
+  const currentSlide = ONBOARDING_SLIDES[currentSlideIndex];
+  const imageMap = {
+  0: require('@/assets/images/weather.png'),
+  1: require('@/assets/images/city.png'),
+  2: require('@/assets/images/help.jpg'),
+};
+
+const currentImage = imageMap[currentSlideIndex as 0|1|2];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.center}>
         <Image
-          source={{
-            uri: "https://i.pinimg.com/736x/d9/92/94/d992940bc1a63603190a64f224ace249.jpg",
-          }}
+          source={currentImage}
           style={styles.image}
-          resizeMode="contain"
+          contentFit="contain"
         />
-
-        <Text style={styles.title}>Погода</Text>
-        <Text style={styles.subtitle}>Всё в одном удобном месте</Text>
+        <Text style={styles.title}>{currentSlide.title}</Text>
+        {currentSlide.subtitles.map((subtitle, i) => (
+          <Text key={i} style={styles.subtitle}>
+            {subtitle}
+          </Text>
+        ))}
       </View>
 
       <View style={styles.footer}>
         <View style={styles.pagination}>
-          <View style={[styles.dot, styles.dotActive]} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
+          {ONBOARDING_SLIDES.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                index === currentSlideIndex && styles.dotActive,
+              ]}
+            />
+          ))}
         </View>
 
-        <View style={[styles.actions, { flexDirection: "column" }]}>
+        <View style={styles.actions}>
           <TouchableOpacity
-            style={[
-              styles.continueBtn,
-              {
-                marginRight: 0,
-                marginBottom: 12,
-                width: "100%",
-                flex: 0,
-                justifyContent: "center",
-              },
-            ]}
+            style={styles.continueBtn}
             activeOpacity={0.8}
-            onPress={() => {
-              router.push("/onboarding2");
-            }}
+            onPress={handleContinue}
           >
-            <Text style={[styles.continueText, { textTransform: "none" }]}>Продолжить</Text>
+            <Text style={styles.continueText}>
+              {currentSlideIndex === ONBOARDING_SLIDES.length - 1 ? 'Начать' : 'Продолжить'}
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.skipBtn,
-              {
-                marginLeft: 0,
-                width: "100%",
-                flex: 0,
-                justifyContent: "center",
-              },
-            ]}
-            activeOpacity={0.8}
-            onPress={async () => {
-              try {
-                await AsyncStorage.setItem('hasSeenOnboarding', 'true');
-              } catch (e) {
-                console.warn('Failed to save onboarding state', e);
-              } finally {
-                router.push("/");
-              }
-            }}
-          >
-            <Text style={[styles.skipText, { textTransform: "none" }]}>Пропустить</Text>
-          </TouchableOpacity>
+          {currentSlideIndex < ONBOARDING_SLIDES.length - 1 && (
+            <TouchableOpacity
+              style={styles.skipBtn}
+              activeOpacity={0.8}
+              onPress={handleSkip}
+            >
+              <Text style={styles.skipText}>Пропустить</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>
   );
 }
 
-const DOT_SIZE = 10;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: '#ffffff',
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
   image: {
-    width: Math.min(300, width - 80),
-    height: Math.min(300, width - 80),
+    width: 250,
+    height: 250,
     marginBottom: 24,
   },
   title: {
     fontSize: 36,
-    fontWeight: "700",
-    color: "#111",
+    fontWeight: '700',
+    color: '#111',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    textAlign: "center",
+    color: '#666',
+    textAlign: 'center',
     paddingHorizontal: 12,
+    marginBottom: 4,
   },
   footer: {
     paddingHorizontal: 24,
     paddingBottom: 24,
   },
   pagination: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 18,
   },
   dot: {
@@ -130,47 +152,41 @@ const styles = StyleSheet.create({
     height: DOT_SIZE,
     borderRadius: DOT_SIZE / 2,
     borderWidth: 1,
-    borderColor: "#111",
+    borderColor: '#111',
     marginHorizontal: 6,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   dotActive: {
-    backgroundColor: "#111",
-    borderColor: "#111",
+    backgroundColor: '#111',
+    borderColor: '#111',
   },
   actions: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    display:'flex',
+    flexDirection: 'column',
+    gap: 15
   },
   continueBtn: {
-    flex: 1,
-    backgroundColor: "#111",
+    backgroundColor: '#111',
     paddingVertical: 14,
     borderRadius: 8,
-    alignItems: "center",
-    marginRight: 8,
+    alignItems: 'center',
   },
   continueText: {
-    color: "#fff",
-    fontWeight: "600",
-    textTransform: "lowercase",
+    color: '#fff',
+    fontWeight: '600',
     fontSize: 16,
   },
   skipBtn: {
-    flex: 1,
     paddingVertical: 14,
     borderRadius: 8,
-    alignItems: "center",
-    marginLeft: 8,
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
   },
   skipText: {
-    color: "#111",
-    fontWeight: "600",
-    textTransform: "lowercase",
+    color: '#111',
+    fontWeight: '600',
     fontSize: 16,
   },
 });

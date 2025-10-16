@@ -1,8 +1,3 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from 'react-native';
 
 const tintColorLight = '#0a7ea4';
@@ -55,3 +50,17 @@ export const Fonts = Platform.select({
 export const OPENWEATHER_KEY = '97a67a026c9bd9a3ad5c05f873124d78';
 export const daysDict = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 export const monthsDict = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+export const ONBOARDING_SLIDES = [
+  {
+    title: "Погода",
+    subtitles: ["Всё в одном удобном месте"],
+  },
+  {
+    title: "Найди твой город",
+    subtitles: ["Когда и где хочешь"],
+  },
+  {
+    title: "Будь готов",
+    subtitles: ["Устал от неожиданностей?", "Мы предупредим!"],
+  },
+];

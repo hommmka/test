@@ -23,7 +23,7 @@ export default function HomeScreen() {
 
   const fetchWeather = async () => {
     setError(null);
-    setLoading(true); // Убедитесь, что loading устанавливается в true в начале
+    setLoading(true);
 
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -95,7 +95,7 @@ export default function HomeScreen() {
         <Text style={styles.text}>Погода</Text>
       </View>
 
-      <View style={{ width: "100%", padding: 16 }}>
+      <View style={styles.mainContent}>
         <View style={styles.weatherContainer}>
           <Text style={styles.cityText}>
             <FontAwesome name="map-marker" size={24} color="black" />
@@ -105,23 +105,16 @@ export default function HomeScreen() {
             source={{
               uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`,
             }}
-            resizeMode="contain"
+            contentFit="contain"
             style={styles.weatherPicture}
           />
           <Text style={styles.temperatureText}>{weather.main.temp}°C</Text>
           <Text style={styles.weatherDescription}>
             {weather.weather[0].description}
           </Text>
-          <Text>{formattedDate}</Text>
+          <Text style={styles.dateText}>{formattedDate}</Text>
 
-          <View
-            style={{
-              width: "100%",
-              height: 1,
-              backgroundColor: "#2e2e2eff",
-              marginVertical: 16,
-            }}
-          />
+          <View style={styles.divider} />
 
           <View style={styles.infoRow}>
             <View style={styles.infoItem}>
@@ -161,6 +154,10 @@ const styles = StyleSheet.create({
   text: {
     color: "#ffffff",
   },
+  mainContent: {
+    width: "100%",
+    padding: 16,
+  },
   weatherContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -185,6 +182,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  divider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#2e2e2eff",
+    marginVertical: 16,
   },
   infoRow: {
     flexDirection: "row",
