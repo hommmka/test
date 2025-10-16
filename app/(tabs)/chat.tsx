@@ -1,33 +1,50 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useRef } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabTwoScreen() {
+  const textInputRef = useRef(null);
+
+  // Функция для отправки сообщения и закрытия клавиатуры
+  const handleSend = () => {
+    Keyboard.dismiss(); // Закрываем клавиатуру
+    // Здесь можно добавить логику отправки сообщения
+  };
+
+  // Закрытие клавиатуры при касании вне инпута
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} // Используем padding для обеих платформ
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // Подстройка для Android
     >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Пустой контент сверху (может быть список сообщений) */}
-        <View style={styles.messagesContainer} />
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.messagesContainer} />
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Введите сообщение..."
-            style={styles.textInput}
-            returnKeyType="send"
-          />
-          <TouchableOpacity
-            onPress={() => {}}
-            activeOpacity={0.7}
-            style={styles.sendButton}
-          >
-            <FontAwesome5 name="telegram-plane" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+          <View style={styles.inputContainer}>
+            <TextInput
+              ref={textInputRef}
+              placeholder="Введите сообщение..."
+              style={styles.textInput}
+              returnKeyType="send"
+              onSubmitEditing={handleSend} // Отправка по нажатию "Enter"
+            />
+            <TouchableOpacity
+              onPress={handleSend} // Обработчик для кнопки отправки
+              activeOpacity={0.7}
+              style={styles.sendButton}
+            >
+              <FontAwesome5 name="telegram-plane" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
@@ -39,7 +56,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    justifyContent: 'flex-end', 
+    justifyContent: 'flex-end',
   },
   messagesContainer: {
     flex: 1,
