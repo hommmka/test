@@ -1,58 +1,58 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome5';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useLayoutEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { daysDict, monthsDict, OPENWEATHER_KEY } from "@/constants/theme";
+import FontAwesome from "@expo/vector-icons/FontAwesome5";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from 'expo-image';
+import * as Location from "expo-location";
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getWeather, WeatherData } from '../api';
-
-import { ErrorScreen } from '../components/ErrorScreen';
-import { LoadingScreen } from '../components/LoadingScreen';
-import { LocationDeniedScreen } from '../components/LocationDeniedScreen';
+import { ErrorScreen } from "../../components/home-page-status/ErrorScreen";
+import { LoadingScreen } from "../../components/home-page-status/LoadingScreen";
+import { LocationDeniedScreen } from "../../components/home-page-status/LocationDeniedScreen";
+import { getWeather, WeatherData } from "../../serviсes/api";
 
 export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const Location = require('expo-location');
-  const OPENWEATHER_KEY = '97a67a026c9bd9a3ad5c05f873124d78';
 
-  const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-  const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
   const date = new Date();
-  const formattedDate = `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
+  const formattedDate = `${daysDict[date.getDay()]}, ${date.getDate()} ${
+    monthsDict[date.getMonth()]
+  }`;
 
   const fetchWeather = async () => {
     setError(null);
+    setLoading(true); // Убедитесь, что loading устанавливается в true в начале
 
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        throw new Error('Location permission not granted');
+      if (status !== "granted") {
+        throw new Error("Location permission not granted");
       }
 
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
+
       const data = await getWeather(latitude, longitude, OPENWEATHER_KEY);
-
-      await AsyncStorage.setItem('lastWeather', JSON.stringify(data));
+      await AsyncStorage.setItem("lastWeather", JSON.stringify(data));
       setWeather(data);
-      setLoading(false);
-
     } catch (err: any) {
-      setError(err.message || 'Неизвестная ошибка');
+      setError(err.message || "Неизвестная ошибка");
+    } finally {
       setLoading(false);
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const loadFromCache = async () => {
       try {
-        const cached = await AsyncStorage.getItem('lastWeather');
+        const cached = await AsyncStorage.getItem("lastWeather");
         if (cached) {
           setWeather(JSON.parse(cached));
         }
       } catch (e) {
-        console.log('Ошибка чтения кэша:', e);
+        console.log("Ошибка чтения кэша:", e);
       } finally {
         fetchWeather();
       }
@@ -77,14 +77,16 @@ export default function HomeScreen() {
   }
 
   if (error) {
-    if (error === 'Location permission not granted') {
+    if (error === "Location permission not granted") {
       return <LocationDeniedScreen onRetry={handleRetry} />;
     }
     return <ErrorScreen message={error} onRetry={handleRetry} />;
   }
 
   if (!weather) {
-    return <ErrorScreen message="Данные о погоде не найдены" onRetry={handleRetry} />;
+    return (
+      <ErrorScreen message="Данные о погоде не найдены" onRetry={handleRetry} />
+    );
   }
 
   return (
@@ -93,10 +95,10 @@ export default function HomeScreen() {
         <Text style={styles.text}>Погода</Text>
       </View>
 
-      <View style={{ width: '100%', padding: 16 }}>
+      <View style={{ width: "100%", padding: 16 }}>
         <View style={styles.weatherContainer}>
           <Text style={styles.cityText}>
-            <FontAwesome name='map-marker' size={24} color='black' />
+            <FontAwesome name="map-marker" size={24} color="black" />
             {weather.name}
           </Text>
           <Image
@@ -107,16 +109,28 @@ export default function HomeScreen() {
             style={styles.weatherPicture}
           />
           <Text style={styles.temperatureText}>{weather.main.temp}°C</Text>
-          <Text style={styles.weatherDescription}>{weather.weather[0].description}</Text>
+          <Text style={styles.weatherDescription}>
+            {weather.weather[0].description}
+          </Text>
           <Text>{formattedDate}</Text>
 
-          <View style={{ width: '100%', height: 1, backgroundColor: '#2e2e2eff', marginVertical: 16 }} />
+          <View
+            style={{
+              width: "100%",
+              height: 1,
+              backgroundColor: "#2e2e2eff",
+              marginVertical: 16,
+            }}
+          />
 
           <View style={styles.infoRow}>
             <View style={styles.infoItem}>
               <FontAwesome name="wind" size={24} color="#666" />
               <Text style={styles.infoValue}>
-                {weather.wind?.speed ? (weather.wind.speed * 3.6).toFixed(1) : '—'} км/ч
+                {weather.wind?.speed
+                  ? (weather.wind.speed * 3.6).toFixed(1)
+                  : "—"}{" "}
+                км/ч
               </Text>
               <Text style={styles.infoLabel}>Ветер</Text>
             </View>
@@ -135,26 +149,26 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
+    backgroundColor: "#ffffff",
+    alignItems: "center",
   },
   textContainer: {
-    alignItems: 'center',
-    backgroundColor: '#747474ff',
-    width: '100%',
+    alignItems: "center",
+    backgroundColor: "#747474ff",
+    width: "100%",
     padding: 20,
   },
   text: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   weatherContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   cityText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   weatherPicture: {
@@ -164,32 +178,32 @@ const styles = StyleSheet.create({
   },
   temperatureText: {
     fontSize: 30,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   weatherDescription: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     marginTop: 20,
     paddingHorizontal: 20,
   },
   infoItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   infoValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 4,
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
 });

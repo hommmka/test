@@ -49,9 +49,14 @@ export interface WeatherData {
   cod?: number;
 }
 
-export const getWeather = (latitude: number, longitude: number, API_KEY: string): Promise<WeatherData> => {
-  return axios
-    .get<WeatherData>("https://api.openweathermap.org/data/2.5/weather", {
+export const getWeather = async (
+  latitude: number,
+  longitude: number,
+  API_KEY: string
+): Promise<WeatherData> => {
+  const response = await axios.get<WeatherData>(
+    "https://api.openweathermap.org/data/2.5/weather",
+    {
       params: {
         units: "metric",
         lang: "ru",
@@ -59,6 +64,7 @@ export const getWeather = (latitude: number, longitude: number, API_KEY: string)
         lon: longitude,
         appid: API_KEY,
       },
-    })
-    .then((response) => response.data);
+    }
+  );
+  return response.data;
 };

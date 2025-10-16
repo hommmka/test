@@ -1,15 +1,15 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
 import { useRouter } from "expo-router";
 import React from "react";
 import {
     Dimensions,
-    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-const AsyncStorage = require('@react-native-async-storage/async-storage').default;
 
 const { width } = Dimensions.get("window");
 

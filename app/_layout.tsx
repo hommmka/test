@@ -1,10 +1,9 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
-const AsyncStorage = require('@react-native-async-storage/async-storage').default;
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -14,30 +13,29 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   const checkOnboarding = async () => {
-    let value: string | null = null;
-    try {
-      value = await AsyncStorage.getItem('hasSeenOnboarding');
-    } catch (e) {
-      console.warn('Failed to fetch onboarding state', e);
-    }
-    if (value !== 'true') {
+  try {
+    const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
+    if (hasSeenOnboarding == 'true') {
       router.replace('/onboarding1');
-      return false;
     }
-    return true;
-  };
+  } catch (e) {
+    console.warn('Failed to check onboarding status', e);
+    router.replace('/onboarding1');
+  }
+};
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     checkOnboarding()
   }, [])
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(onboardings)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }

@@ -1,17 +1,9 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 export default function TabTwoScreen() {
-  const {
-    Text,
-    TextInput,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-  } = require('react-native');
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
